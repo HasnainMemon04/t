@@ -1,0 +1,133 @@
+import socket
+import threading
+
+IP = "192.168.100.18"
+port = 1633
+
+# Create socket
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Bind and listen
+server.bind((IP, port))
+server.listen(1)
+
+print("Server started. Waiting for connection...")
+
+# Accept client
+conn, addr = server.accept()
+print(addr, "Client connected")
+
+
+# 🔹 Receive messages
+def receive():
+    while True:
+        try:
+            msg = conn.recv(1024).decode("utf-8")
+
+            if not msg:
+                print("\nClient disconnected.")
+                break
+
+            print("\nClient:", msg)
+
+            if msg.lower() == "exit":
+                print("Client ended the chat.")
+                break
+
+            print("You: ", end="", flush=True)
+
+        except:
+            print("\nConnection lost.")
+            break
+
+    conn.close()
+
+
+# 🔹 Send messages
+def send():
+    print("You: ", end="", flush=True)
+
+    while True:
+        try:
+            msg = input()
+
+            conn.send(msg.encode("utf-8"))
+
+            if msg.lower() == "exit":
+                print("Server closed.")
+                break
+
+        except:
+            break
+
+    conn.close()
+
+
+# Start threads
+threading.Thread(target=receive).start()
+threading.Thread(target=send).start()
+
+
+import socket
+import threading
+
+IP = "192.168.100.18"
+port = 1633
+
+# Create socket
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Connect to server
+client.connect((IP, port))
+
+print("Connected to server!")
+
+
+# 🔹 Receive messages
+def receive():
+    while True:
+        try:
+            msg = client.recv(1024).decode("utf-8")
+
+            if not msg:
+                print("\nServer disconnected.")
+                break
+
+            print("\nServer:", msg)
+
+            if msg.lower() == "exit":
+                print("Server ended the chat.")
+                break
+
+            print("You: ", end="", flush=True)
+
+        except:
+            print("\nConnection lost.")
+            break
+
+    client.close()
+
+
+# 🔹 Send messages
+def send():
+    print("You: ", end="", flush=True)
+
+    while True:
+        try:
+            msg = input()
+
+            client.send(msg.encode("utf-8"))
+
+            if msg.lower() == "exit":
+                print("Client closed.")
+                break
+
+        except:
+            break
+
+    client.close()
+
+
+# Start threads
+threading.Thread(target=receive).start()
+threading.Thread(target=send).start()
